@@ -10,16 +10,23 @@ public class AdminCommand extends BaseCommand {
 		String arg = strings[0];
 		if(arg.equalsIgnoreCase("reload")) {
 			String arg2 = strings[1];
-			boolean reloadPermissions = (arg2.equalsIgnoreCase("all") || arg2.startsWith("perm"));
-			boolean reloadConfig = (arg2.equalsIgnoreCase("all") || arg2.startsWith("conf"));
+			boolean reloadAll = arg2.equalsIgnoreCase("all");
+			boolean reloadPermissions = (reloadAll || arg2.startsWith("perm"));
+			boolean reloadLevels = (reloadAll || arg2.startsWith("lev"));
+			boolean reloadConfig = (reloadAll || arg2.startsWith("conf"));
 
 			if(reloadConfig) {
 				plugin.reloadConfig();
 				commandSender.sendMessage("Reloading config...");
 			}
 
-			if(reloadPermissions) {
+			if(reloadLevels) {
 				plugin.playerAPI.rebuildCaches();
+				commandSender.sendMessage("Reloading levels...");
+			}
+
+			if(reloadPermissions) {
+				plugin.playerAPI.loadConfig();
 				commandSender.sendMessage("Reloading permissions...");
 			}
 		}

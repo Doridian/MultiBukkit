@@ -3,6 +3,9 @@ package de.doridian.multibukkit;
 import de.doridian.multibukkit.api.PlayerAPI;
 import de.doridian.multibukkit.commands.BaseCommand;
 import de.doridian.multibukkit.util.Utils;
+import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachment;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
 import org.json.simple.JSONArray;
@@ -15,6 +18,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -69,6 +73,21 @@ public class MultiBukkit extends JavaPlugin {
 	
 	public void log(Level level, String msg) {
 		getLogger().log(level, msg);
+	}
+
+	protected HashMap<Player, PermissionAttachment> playerAttachments = new HashMap<Player, PermissionAttachment>();
+	public PermissionAttachment findOrCreatePermissionAttachmentFor(Player player) {
+		if(playerAttachments.containsKey(player)) {
+			return playerAttachments.get(player);
+		}
+		for(PermissionAttachmentInfo info : player.getEffectivePermissions()) {
+			if(info.getAttachment().getPlugin() == this) {
+				return info.getAttachment();
+			}
+		}
+		PermissionAttachment attachment = player.addAttachment(this);
+		playerAttachments.put(player, attachment);
+		return attachment;
 	}
 	
 	public Object apiCall(String method, Map<String, String> params) {

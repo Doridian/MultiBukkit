@@ -2,19 +2,64 @@ package de.doridian.multibukkit.api;
 
 import de.doridian.multibukkit.MultiBukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachment;
+import org.bukkit.util.config.Configuration;
+import org.bukkit.util.config.ConfigurationNode;
 import org.json.simple.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 
 public class PlayerAPI {
-	MultiBukkit plugin;
+	final MultiBukkit plugin;
 	private final HashMap<String, Integer> playerLevels = new HashMap<String, Integer>();
+	private final HashMap<Integer, HashMap<String, Boolean>> permissionsForLevels = new HashMap<Integer, HashMap<String, Boolean>>();
 
 	public PlayerAPI(MultiBukkit plugin) {
 		this.plugin = plugin;
+		loadConfig();
+	}
+
+	public void loadConfig() {
+		File permsFile = new File(plugin.getDataFolder(), "permissions.yml");
+		if(!permsFile.exists()) {
+			try {
+				PrintStream stream = new PrintStream(new FileOutputStream(permsFile));
+				stream.println("permissions:");
+				stream.println("    1:");
+				stream.println("        permissions.build: true");
+				stream.println("    50:");
+				stream.println("        multibukkit.level.set: true");
+				stream.println("        multibukkit.level.get: true");
+				stream.println("        multibukkit.admin: true");
+				stream.close();
+			}
+			catch(Exception e) {
+				plugin.log(Level.WARNING, "Could not create default permissions.yml");
+			}
+		}
+
+		try {
+			Configuration config = new Configuration(permsFile);
+			config.load();
+			for(Map.Entry<String, ConfigurationNode> entry : config.getNodes("permissions").entrySet()) {
+				HashMap<String, Boolean> perms = new HashMap<String, Boolean>();
+
+				for(Map.Entry<String, Object> setPerms : entry.getValue().getAll().entrySet()) {
+					perms.put(setPerms.getKey(), (Boolean)setPerms.getValue());
+				}
+
+				permissionsForLevels.put(Integer.parseInt(entry.getKey()), perms);
+			}
+		} catch(Exception e) {
+			plugin.log(Level.WARNING, "Could not read permissions.yml");
+			e.printStackTrace();
+		}
 	}
 	
 	private String transformName(Player ply) {
@@ -51,13 +96,10 @@ public class PlayerAPI {
 				String playerID = getPlayerID(player);
 				HashMap<String, String> params = new HashMap<String, String>();
 				params.put("id", playerID);
-				synchronized(playerLevels) {
-					playerLevels.put(transformName(player), Integer.parseInt((String) ((JSONObject) ((JSONObject) plugin.apiCall("getPlayer", params)).get("Player")).get("level")));
-				}
+				int level = Integer.parseInt((String) ((JSONObject) ((JSONObject) plugin.apiCall("getPlayer", params)).get("Player")).get("level"));
+				refreshLevel(player, level, nocache);
 			} catch(Exception e) {
-				synchronized(playerLevels) {
-					playerLevels.put(name, 1);
-				}
+				refreshLevel(player, 1, nocache);
 			}
 		}
 
@@ -73,9 +115,7 @@ public class PlayerAPI {
 		params.put("field", "\"level\"");
 		params.put("value", "\"" + level + "\"");
 		plugin.apiCall("updatePlayer", params);
-		synchronized(playerLevels) {
-			playerLevels.put(transformName(player), level);
-		}
+		refreshLevel(player, level, false);
 	}
 
 	public String getPlayerID(Player player) throws Exception {
@@ -93,5 +133,41 @@ public class PlayerAPI {
 		}
 
 		throw new Exception("Player not found");
+	}
+	
+	private void refreshLevel(Player player, int newlevel, boolean nocache) {
+		String name = transformName(player);
+		synchronized(playerLevels) {
+			if(!nocache && playerLevels.containsKey(name)) {
+				if(newlevel == playerLevels.get(name)) return;
+			}
+			playerLevels.put(name, newlevel);
+		}
+
+		if(!plugin.enableGroups && !plugin.enablePermissions) return;
+		
+		PermissionAttachment attach = plugin.findOrCreatePermissionAttachmentFor(player);
+		if(plugin.enablePermissions) {
+			for(String str : attach.getPermissions().keySet()) {
+				attach.unsetPermission(str);
+			}
+
+			for(int i = 0; i < newlevel; i++) {
+				if(!permissionsForLevels.containsKey(i)) continue;
+				HashMap<String, Boolean> perms = permissionsForLevels.get(i);
+				for(Map.Entry<String, Boolean> perm : perms.entrySet()) {
+					attach.setPermission(perm.getKey(), perm.getValue());
+				}
+			}
+		}
+
+		if(plugin.enableGroups) {
+			for(String str : attach.getPermissions().keySet()) {
+				if(str.startsWith("multibukkit.level.")) {
+					attach.unsetPermission(str);
+				}
+			}
+			attach.setPermission("multibukkit.level." + newlevel, true);
+		}
 	}
 }
