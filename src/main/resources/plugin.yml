@@ -1,0 +1,20 @@
+name: MultiBukkit
+main: de.doridian.multibukkit.MultiBukkit
+author: Doridian
+version: 1.0.0
+commands:
+    "list":
+        description: Outputs a list with player names rather than display names for console (for Multicraft :3)
+        usage: /<command>
+    "setlevel":
+        description: Sets someone's Multicraft level
+        permission: multibukkit.level.set
+        usage: /<command> <player> <level>
+    "getlevel":
+        description: Gets someone's Multicraft level
+        permission: multibukkit.level.get
+        usage: /<command> <player>
+    "mbadm":
+        description: MultiBukkit administration command (use with caution!)
+        permission: multibukkit.admin
+        usage: /<command> [reload] [params ...]

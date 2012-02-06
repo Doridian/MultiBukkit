@@ -5,11 +5,14 @@ import org.bukkit.entity.Player;
 import org.json.simple.JSONObject;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 public class PlayerAPI {
 	MultiBukkit plugin;
+	private final HashMap<String, Integer> playerLevels = new HashMap<String, Integer>();
+
 	public PlayerAPI(MultiBukkit plugin) {
 		this.plugin = plugin;
 	}
@@ -18,7 +21,25 @@ public class PlayerAPI {
 		return ply.getName().toLowerCase();
 	}
 
-	private HashMap<String, Integer> playerLevels = new HashMap<String, Integer>();
+	public void rebuildCaches() {
+		new Thread() {
+			@Override
+			public void run() {
+				Set<String> players = ((HashMap<String, Integer>)playerLevels.clone()).keySet();
+				for(String ply : players) {
+					Player player = plugin.getServer().getPlayerExact(ply);
+					if(player == null) {
+						synchronized(playerLevels) {
+							playerLevels.remove(ply);
+						}
+					} else {
+						getLevel(player, true);
+					}
+				}
+			}
+		}.start();
+	}
+
 	public int getLevel(Player player) {
 		return getLevel(player, false);
 	}
@@ -27,20 +48,22 @@ public class PlayerAPI {
 		String name = transformName(player);
 		if(nocache || !playerLevels.containsKey(name)) {
 			try {
-				loadLevel(player);
+				String playerID = getPlayerID(player);
+				HashMap<String, String> params = new HashMap<String, String>();
+				params.put("id", playerID);
+				synchronized(playerLevels) {
+					playerLevels.put(transformName(player), Integer.parseInt((String) ((JSONObject) ((JSONObject) plugin.apiCall("getPlayer", params)).get("Player")).get("level")));
+				}
 			} catch(Exception e) {
-				playerLevels.put(name, 1);
+				synchronized(playerLevels) {
+					playerLevels.put(name, 1);
+				}
 			}
 		}
 
-		return playerLevels.get(name);
-	}
-
-	private void loadLevel(Player player) throws Exception {
-		String playerID = getPlayerID(player);
-		HashMap<String, String> params = new HashMap<String, String>();
-		params.put("id", playerID);
-		playerLevels.put(transformName(player), Integer.parseInt((String)((JSONObject)((JSONObject)plugin.apiCall("getPlayer", params)).get("Player")).get("level")));
+		synchronized(playerLevels) {
+			return playerLevels.get(name);
+		}
 	}
 	
 	public void setLevel(Player player, int level) throws Exception {
@@ -50,7 +73,9 @@ public class PlayerAPI {
 		params.put("field", "\"level\"");
 		params.put("value", "\"" + level + "\"");
 		plugin.apiCall("updatePlayer", params);
-		playerLevels.put(transformName(player), level);
+		synchronized(playerLevels) {
+			playerLevels.put(transformName(player), level);
+		}
 	}
 
 	public String getPlayerID(Player player) throws Exception {
