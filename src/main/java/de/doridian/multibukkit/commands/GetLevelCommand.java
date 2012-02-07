@@ -1,5 +1,6 @@
 package de.doridian.multibukkit.commands;
 
+import de.doridian.multibukkit.util.Role;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -14,7 +15,7 @@ public class GetLevelCommand extends BaseCommand {
 			@Override
 			public void run() {
 				try {
-					sendResponse(commandSender, "Player " + other.getName() + " has level " + plugin.playerAPI.getLevel(other));
+					sendResponse(commandSender, "Player " + other.getName() + " has " + Role.formatRoleLevel(other));
 				} catch(Exception e) {
 					sendResponse(commandSender, "Error: " + e.getMessage(), ChatColor.DARK_RED);
 					e.printStackTrace();

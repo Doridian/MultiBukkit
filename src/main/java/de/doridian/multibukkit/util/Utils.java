@@ -16,6 +16,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Utils {
+	public static String ucWords(String input) {
+		char[] chars = input.toLowerCase().toCharArray();
+		boolean lastWasSpace = true;
+		for(int i = 0; i < chars.length; i++)  {
+			Character c = chars[i];
+			if(c == ' ') {
+				lastWasSpace = true;
+			} else if(lastWasSpace) {
+				chars[i] = c.toString().toUpperCase().charAt(0);
+				lastWasSpace = false;
+			}
+		}
+		return new String(chars);
+	}
+	
 	public static String concatArray(String[] array, int start, String def) {
 		if (array.length <= start) return def;
 		if (array.length <= start + 1) return array[start];

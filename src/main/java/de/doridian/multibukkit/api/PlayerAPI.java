@@ -1,6 +1,7 @@
 package de.doridian.multibukkit.api;
 
 import de.doridian.multibukkit.MultiBukkit;
+import de.doridian.multibukkit.util.Role;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.util.config.Configuration;
@@ -113,6 +114,26 @@ public class PlayerAPI {
 		}
 	}
 	
+	public void setLevel(Player player, String to) throws Exception {
+		try {
+			int level = Integer.parseInt(to);
+			setLevel(player, level);
+			return;
+		} catch(Exception e) { }
+
+		try {
+			Role role = Role.getByName(to);
+			setLevel(player, role);
+			return;
+		} catch(Exception e) { }
+
+		throw new Exception("Invalid level or role specified!");
+	}
+	
+	public void setLevel(Player player, Role role) throws Exception {
+		setLevel(player, role.getLevel());
+	}
+	
 	public void setLevel(Player player, int level) throws Exception {
 		String playerID = getPlayerID(player);
 		HashMap<String, String> params = new HashMap<String, String>();
@@ -185,11 +206,16 @@ public class PlayerAPI {
 
 		if(plugin.enableGroups) {
 			for(String str : attach.getPermissions().keySet()) {
-				if(str.startsWith("multibukkit.level.")) {
+				if(str.startsWith("multibukkit.level.") || str.startsWith("multibukkit.role.")) {
 					attach.unsetPermission(str);
 				}
 			}
 			attach.setPermission("multibukkit.level." + newlevel, true);
+
+			Role newrole = Role.getByLevel(newlevel);
+			if(newrole != null) {
+				attach.setPermission("multibukkit.role." + newrole.name().toLowerCase(), true);
+			}
 		}
 	}
 }
