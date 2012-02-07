@@ -96,9 +96,11 @@ public class MultiBukkit extends JavaPlugin {
 			return playerAttachments.get(player);
 		}
 		for(PermissionAttachmentInfo info : player.getEffectivePermissions()) {
-			if(info.getAttachment().getPlugin() == this) {
-				return info.getAttachment();
-			}
+			try {
+				if(info.getAttachment().getPlugin() == this) {
+					return info.getAttachment();
+				}
+			} catch(Exception e) { }
 		}
 		PermissionAttachment attachment = player.addAttachment(this);
 		playerAttachments.put(player, attachment);
