@@ -31,9 +31,9 @@ public class PlayerAPI {
 			try {
 				PrintStream stream = new PrintStream(new FileOutputStream(permsFile));
 				stream.println("permissions:");
-				stream.println("    1:");
+				stream.println("    '1':");
 				stream.println("        permissions.build: true");
-				stream.println("    50:");
+				stream.println("    '50':");
 				stream.println("        multibukkit.level.set: true");
 				stream.println("        multibukkit.level.get: true");
 				stream.println("        multibukkit.admin: true");
