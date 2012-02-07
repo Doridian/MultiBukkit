@@ -18,6 +18,8 @@ import java.util.logging.Level;
 public class PlayerAPI {
 	final MultiBukkit plugin;
 	private final HashMap<String, Integer> playerLevels = new HashMap<String, Integer>();
+	private final HashMap<String, Integer> playerIDs = new HashMap<String, Integer>();
+
 	private final HashMap<Integer, HashMap<String, Boolean>> permissionsForLevels = new HashMap<Integer, HashMap<String, Boolean>>();
 
 	public PlayerAPI(MultiBukkit plugin) {
@@ -70,6 +72,9 @@ public class PlayerAPI {
 		new Thread() {
 			@Override
 			public void run() {
+				synchronized(playerIDs) {
+					playerIDs.clear();
+				}
 				Set<String> players = ((HashMap<String, Integer>)playerLevels.clone()).keySet();
 				for(String ply : players) {
 					Player player = plugin.getServer().getPlayerExact(ply);
@@ -119,7 +124,13 @@ public class PlayerAPI {
 	}
 
 	public String getPlayerID(Player player) throws Exception {
-		String name = player.getName();
+		String name = transformName(player);
+
+		synchronized(playerIDs) {
+			if(playerIDs.containsKey(name)) {
+				return playerIDs.get(name).toString();
+			}
+		}
 
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("field", "\"name\"");
@@ -128,7 +139,11 @@ public class PlayerAPI {
 		ret = (JSONObject)ret.get("Players");
 		for(Map.Entry<Object, Object> ent : (Set<Map.Entry<Object, Object>>)ret.entrySet()) {
 			if(ent.getValue().toString().equalsIgnoreCase(name)) {
-				return ent.getKey().toString();
+				String id =  ent.getKey().toString();
+				synchronized(playerIDs) {
+					playerIDs.put(name, Integer.parseInt(id));
+				}
+				return id;
 			}
 		}
 
