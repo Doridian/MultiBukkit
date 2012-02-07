@@ -144,6 +144,13 @@ public class PlayerAPI {
 			playerLevels.put(name, newlevel);
 		}
 
+		if(plugin.enableKick) {
+			if(newlevel < 1) {
+				player.kickPlayer("[MB] You are not authorized to be on this server");
+				return;
+			}
+		}
+
 		if(!plugin.enableGroups && !plugin.enablePermissions) return;
 		
 		PermissionAttachment attach = plugin.findOrCreatePermissionAttachmentFor(player);

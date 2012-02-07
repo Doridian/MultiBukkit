@@ -30,6 +30,7 @@ public class MultiBukkit extends JavaPlugin {
 
 	public boolean enablePermissions;
 	public boolean enableGroups;
+	public boolean enableKick;
 	
 	private String apiURL;
 	private String apiUser;
@@ -65,6 +66,8 @@ public class MultiBukkit extends JavaPlugin {
 
 		enablePermissions = config.getBoolean("feature.permissions", true);
 		enableGroups = config.getBoolean("feature.groups", true);
+		enableKick = config.getBoolean("feature.kick", true);
+
 		config.save();
 	}
 
