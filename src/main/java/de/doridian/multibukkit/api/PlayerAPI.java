@@ -152,7 +152,7 @@ public class PlayerAPI {
 				attach.unsetPermission(str);
 			}
 
-			for(int i = 0; i < newlevel; i++) {
+			for(int i = 0; i <= newlevel; i++) {
 				if(!permissionsForLevels.containsKey(i)) continue;
 				HashMap<String, Boolean> perms = permissionsForLevels.get(i);
 				for(Map.Entry<String, Boolean> perm : perms.entrySet()) {
