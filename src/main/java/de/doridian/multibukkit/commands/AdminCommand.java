@@ -17,17 +17,17 @@ public class AdminCommand extends BaseCommand {
 
 			if(reloadConfig) {
 				plugin.reloadConfig();
-				commandSender.sendMessage("Reloading config...");
+				sendResponse(commandSender, "Reloading config...");
 			}
 
 			if(reloadLevels) {
 				plugin.playerAPI.rebuildCaches();
-				commandSender.sendMessage("Reloading levels...");
+				sendResponse(commandSender, "Reloading levels...");
 			}
 
 			if(reloadPermissions) {
 				plugin.playerAPI.loadConfig();
-				commandSender.sendMessage("Reloading permissions...");
+				sendResponse(commandSender, "Reloading permissions...");
 			}
 		}
 		return true;

@@ -1,5 +1,6 @@
 package de.doridian.multibukkit.commands;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -15,9 +16,9 @@ public class SetLevelCommand extends BaseCommand {
 			public void run() {
 				try {
 					plugin.playerAPI.setLevel(other, level);
-					commandSender.sendMessage("Level of player " + other.getName() + " set to " + level);
+					sendResponse(commandSender, "Level of player " + other.getName() + " set to " + level);
 				} catch(Exception e) {
-					commandSender.sendMessage("Error: " + e.getMessage());
+					sendResponse(commandSender, "Error: " + e.getMessage(), ChatColor.DARK_RED);
 					e.printStackTrace();
 				}
 			}

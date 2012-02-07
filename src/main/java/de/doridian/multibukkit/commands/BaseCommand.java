@@ -79,7 +79,12 @@ public abstract class BaseCommand implements CommandExecutor {
 		sendResponse(cmd, msg, ChatColor.DARK_PURPLE);
 	}
 
-	protected void sendResponse(CommandSender cmd, String msg, ChatColor color) {
-		cmd.sendMessage(color + "[YBL] " + ChatColor.WHITE + msg);
+	protected void sendResponse(final CommandSender cmd, final String msg, final ChatColor color) {
+		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+			@Override
+			public void run() {
+				cmd.sendMessage(color + "[MB] " + ChatColor.WHITE + msg);
+			}
+		}, 0);
 	}
 }
