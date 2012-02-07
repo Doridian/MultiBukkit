@@ -12,6 +12,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import java.io.File;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -21,6 +22,8 @@ import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MultiBukkit extends JavaPlugin {
 	public static MultiBukkit instance;
@@ -46,7 +49,19 @@ public class MultiBukkit extends JavaPlugin {
 		apiURL = config.getString("api.url", "http://localhost/api.php");
 		apiUser = config.getString("api.user", "admin");
 		apiKey = config.getString("api.key", "CHANGEME");
-		apiServerID = config.getString("api.serverid", "1");
+		
+		apiServerID = config.getString("api.serverid", "INVALID");
+		if(apiServerID.equals("INVALID")) {
+			try {
+				File pwd = new File(".");
+				Pattern pat = Pattern.compile("^(.*[\\/])?server([0-9]+)[\\/]?$", Pattern.CASE_INSENSITIVE);
+				Matcher matcher = pat.matcher(pwd.getCanonicalPath());
+				if(matcher.matches()) {
+					apiServerID = matcher.group(2);
+					config.setProperty("api.serverid", apiServerID);
+				}
+			} catch(Exception e) { }
+		}
 
 		enablePermissions = config.getBoolean("feature.permissions", true);
 		enableGroups = config.getBoolean("feature.groups", true);
