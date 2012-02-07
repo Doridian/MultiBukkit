@@ -47,6 +47,8 @@ public class MultiBukkit extends JavaPlugin {
 
 	public void loadConfig() {
 		Configuration config = getConfiguration();
+
+		config.load();
 		apiURL = config.getString("api.url", "http://localhost/api.php");
 		apiUser = config.getString("api.user", "admin");
 		apiKey = config.getString("api.key", "CHANGEME");
