@@ -3,11 +3,11 @@ package de.doridian.multibukkit;
 import de.doridian.multibukkit.api.PlayerAPI;
 import de.doridian.multibukkit.commands.BaseCommand;
 import de.doridian.multibukkit.util.Utils;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.config.Configuration;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -46,31 +46,34 @@ public class MultiBukkit extends JavaPlugin {
 	}
 
 	public void loadConfig() {
-		Configuration config = getConfiguration();
+		try {
+			File mainFile = new File(getDataFolder(), "permissions.yml");
+			YamlConfiguration config = new YamlConfiguration();
+			config.load(mainFile);
 
-		config.load();
-		apiURL = config.getString("api.url", "http://localhost/api.php");
-		apiUser = config.getString("api.user", "admin");
-		apiKey = config.getString("api.key", "CHANGEME");
-		
-		apiServerID = config.getString("api.serverid", "INVALID");
-		if(apiServerID.equals("INVALID")) {
-			try {
-				File pwd = new File(".");
-				Pattern pat = Pattern.compile("^(.*[\\/])?server([0-9]+)[\\/]?$", Pattern.CASE_INSENSITIVE);
-				Matcher matcher = pat.matcher(pwd.getCanonicalPath());
-				if(matcher.matches()) {
-					apiServerID = matcher.group(2);
-					config.setProperty("api.serverid", apiServerID);
-				}
-			} catch(Exception e) { }
-		}
+			apiURL = config.getString("api.url", "http://localhost/api.php");
+			apiUser = config.getString("api.user", "admin");
+			apiKey = config.getString("api.key", "CHANGEME");
 
-		enablePermissions = config.getBoolean("feature.permissions", true);
-		enableGroups = config.getBoolean("feature.groups", true);
-		enableKick = config.getBoolean("feature.kick", true);
+			apiServerID = config.getString("api.serverid", "INVALID");
+			if(apiServerID.equals("INVALID")) {
+				try {
+					File pwd = new File(".");
+					Pattern pat = Pattern.compile("^(.*[\\/])?server([0-9]+)[\\/]?$", Pattern.CASE_INSENSITIVE);
+					Matcher matcher = pat.matcher(pwd.getCanonicalPath());
+					if(matcher.matches()) {
+						apiServerID = matcher.group(2);
+						config.set("api.serverid", apiServerID);
+					}
+				} catch(Exception e) { }
+			}
 
-		config.save();
+			enablePermissions = config.getBoolean("feature.permissions", true);
+			enableGroups = config.getBoolean("feature.groups", true);
+			enableKick = config.getBoolean("feature.kick", true);
+
+			config.save(mainFile);
+		} catch(Exception e) { }
 	}
 
 	@Override

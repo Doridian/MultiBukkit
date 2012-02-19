@@ -2,10 +2,10 @@ package de.doridian.multibukkit.api;
 
 import de.doridian.multibukkit.MultiBukkit;
 import de.doridian.multibukkit.util.Role;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
-import org.bukkit.util.config.Configuration;
-import org.bukkit.util.config.ConfigurationNode;
 import org.json.simple.JSONObject;
 
 import java.io.File;
@@ -35,11 +35,11 @@ public class PlayerAPI {
 				PrintStream stream = new PrintStream(new FileOutputStream(permsFile));
 				stream.println("permissions:");
 				stream.println("    '1':");
-				stream.println("        permissions.build: true");
+				stream.println("        'permissions.build': true");
 				stream.println("    '50':");
-				stream.println("        multibukkit.level.set: true");
-				stream.println("        multibukkit.level.get: true");
-				stream.println("        multibukkit.admin: true");
+				stream.println("        'multibukkit.level.set': true");
+				stream.println("        'multibukkit.level.get': true");
+				stream.println("        'multibukkit.admin': true");
 				stream.close();
 			}
 			catch(Exception e) {
@@ -48,16 +48,20 @@ public class PlayerAPI {
 		}
 
 		try {
-			Configuration config = new Configuration(permsFile);
-			config.load();
-			for(Map.Entry<String, ConfigurationNode> entry : config.getNodes("permissions").entrySet()) {
+			YamlConfiguration config = new YamlConfiguration();
+			config.load(permsFile);
+			ConfigurationSection mainSection = config.getConfigurationSection("permissions");
+			for(String key : mainSection.getKeys(false)) {
+				ConfigurationSection subSection = mainSection.getConfigurationSection(key);
 				HashMap<String, Boolean> perms = new HashMap<String, Boolean>();
-
-				for(Map.Entry<String, Object> setPerms : entry.getValue().getAll().entrySet()) {
-					perms.put(setPerms.getKey(), (Boolean)setPerms.getValue());
+				for(Map.Entry<String, Object> setPerms : subSection.getValues(true).entrySet()) {
+					Object value = setPerms.getValue();
+					if(value instanceof Boolean) {
+						perms.put(setPerms.getKey(), (Boolean)value);
+					}
 				}
 
-				permissionsForLevels.put(Integer.parseInt(entry.getKey()), perms);
+				permissionsForLevels.put(Integer.parseInt(key), perms);
 			}
 		} catch(Exception e) {
 			plugin.log(Level.WARNING, "Could not read permissions.yml");
