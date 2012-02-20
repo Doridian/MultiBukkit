@@ -47,7 +47,7 @@ public class MultiBukkit extends JavaPlugin {
 
 	public void loadConfig() {
 		try {
-			File mainFile = new File(getDataFolder(), "permissions.yml");
+			File mainFile = new File(getDataFolder(), "config.yml");
 			YamlConfiguration config = new YamlConfiguration();
 			config.load(mainFile);
 
