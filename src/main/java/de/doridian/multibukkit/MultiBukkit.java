@@ -46,6 +46,8 @@ public class MultiBukkit extends JavaPlugin {
 	}
 
 	public void loadConfig() {
+		getDataFolder().mkdirs();
+
 		try {
 			File mainFile = new File(getDataFolder(), "config.yml");
 			YamlConfiguration config = new YamlConfiguration();
