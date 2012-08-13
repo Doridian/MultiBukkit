@@ -13,8 +13,10 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -50,6 +52,21 @@ public class MultiBukkit extends JavaPlugin {
 
 		try {
 			File mainFile = new File(getDataFolder(), "config.yml");
+
+			if(!mainFile.exists()) {
+				PrintStream stream = new PrintStream(new FileOutputStream(mainFile));
+				stream.println("api:");
+				stream.println("    serverid: INVALID");
+				stream.println("    user: admin");
+				stream.println("    key: CHANGEME");
+				stream.println("    url: http://localhost/api.php");
+				stream.println("feature:");
+				stream.println("    permissions: true");
+				stream.println("    groups: true");
+				stream.println("    kick: true");
+				stream.close();
+			}
+
 			YamlConfiguration config = new YamlConfiguration();
 			config.load(mainFile);
 
@@ -75,7 +92,7 @@ public class MultiBukkit extends JavaPlugin {
 			enableKick = config.getBoolean("feature.kick", true);
 
 			config.save(mainFile);
-		} catch(Exception e) { }
+		} catch(Exception e) { e.printStackTrace(); }
 	}
 
 	@Override
