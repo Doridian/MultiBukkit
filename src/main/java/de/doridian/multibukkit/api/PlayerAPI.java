@@ -192,7 +192,7 @@ public class PlayerAPI {
 		}
 
 		if(!plugin.enableGroups && !plugin.enablePermissions) return;
-		
+
 		PermissionAttachment attach = plugin.findOrCreatePermissionAttachmentFor(player);
 		if(plugin.enablePermissions) {
 			for(String str : attach.getPermissions().keySet()) {
@@ -210,11 +210,11 @@ public class PlayerAPI {
 
 		if(plugin.enableGroups) {
 			for(String str : attach.getPermissions().keySet()) {
-				if(str.startsWith("multibukkit.level.") || str.startsWith("multibukkit.role.")) {
+				if(str.startsWith("multibukkit.userlevel.") || str.startsWith("multibukkit.role.")) {
 					attach.unsetPermission(str);
 				}
 			}
-			attach.setPermission("multibukkit.level." + newlevel, true);
+			attach.setPermission("multibukkit.userlevel." + newlevel, true);
 
 			Role newrole = Role.getByLevel(newlevel);
 			if(newrole != null) {

@@ -119,19 +119,36 @@ public class MultiBukkit extends JavaPlugin {
 
 	protected HashMap<Player, PermissionAttachment> playerAttachments = new HashMap<Player, PermissionAttachment>();
 	public PermissionAttachment findOrCreatePermissionAttachmentFor(Player player) {
+		return findOrCreatePermissionAttachmentFor(player, true);
+	}
+
+	public PermissionAttachment findOrCreatePermissionAttachmentFor(Player player, boolean create) {
 		if(playerAttachments.containsKey(player)) {
 			return playerAttachments.get(player);
 		}
+
 		for(PermissionAttachmentInfo info : player.getEffectivePermissions()) {
 			try {
 				if(info.getAttachment().getPlugin() == this) {
+					playerAttachments.put(player, info.getAttachment());
 					return info.getAttachment();
 				}
 			} catch(Exception e) { }
 		}
+
+		if(!create) return null;
+
 		PermissionAttachment attachment = player.addAttachment(this);
 		playerAttachments.put(player, attachment);
 		return attachment;
+	}
+
+	public void deletePermissionAttachmentFor(Player player) {
+		PermissionAttachment attachment = findOrCreatePermissionAttachmentFor(player, false);
+		if(attachment != null) {
+			player.removeAttachment(attachment);
+		}
+		playerAttachments.remove(player);
 	}
 	
 	public Object apiCall(String method, Map<String, String> params) {
