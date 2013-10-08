@@ -12,16 +12,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
 public class PlayerAPI {
 	final MultiBukkit plugin;
-	private final HashMap<String, Integer> playerLevels = new HashMap<String, Integer>();
-	private final HashMap<String, Integer> playerIDs = new HashMap<String, Integer>();
+	private final HashMap<String, Integer> playerLevels = new HashMap<>();
+	private final HashMap<String, Integer> playerIDs = new HashMap<>();
 
-	private final HashMap<Integer, HashMap<String, Boolean>> permissionsForLevels = new HashMap<Integer, HashMap<String, Boolean>>();
+	private final HashMap<Integer, HashMap<String, Boolean>> permissionsForLevels = new HashMap<>();
 
 	public PlayerAPI(MultiBukkit plugin) {
 		this.plugin = plugin;
@@ -53,7 +54,7 @@ public class PlayerAPI {
 			ConfigurationSection mainSection = config.getConfigurationSection("permissions");
 			for(String key : mainSection.getKeys(false)) {
 				ConfigurationSection subSection = mainSection.getConfigurationSection(key);
-				HashMap<String, Boolean> perms = new HashMap<String, Boolean>();
+				HashMap<String, Boolean> perms = new HashMap<>();
 				for(Map.Entry<String, Object> setPerms : subSection.getValues(true).entrySet()) {
 					Object value = setPerms.getValue();
 					if(value instanceof Boolean) {
@@ -80,15 +81,16 @@ public class PlayerAPI {
 				synchronized(playerIDs) {
 					playerIDs.clear();
 				}
-				Set<String> players = ((HashMap<String, Integer>)playerLevels.clone()).keySet();
-				for(String ply : players) {
-					Player player = plugin.getServer().getPlayerExact(ply);
-					if(player == null) {
-						synchronized(playerLevels) {
-							playerLevels.remove(ply);
+
+				synchronized (playerLevels) {
+					for (Iterator<String> iterator = playerLevels.keySet().iterator(); iterator.hasNext(); ) {
+						String ply = iterator.next();
+						Player player = plugin.getServer().getPlayerExact(ply);
+						if (player == null) {
+							iterator.remove();
+						} else {
+							getLevel(player, true);
 						}
-					} else {
-						getLevel(player, true);
 					}
 				}
 			}
@@ -104,7 +106,7 @@ public class PlayerAPI {
 		if(nocache || !playerLevels.containsKey(name)) {
 			try {
 				String playerID = getPlayerID(player);
-				HashMap<String, String> params = new HashMap<String, String>();
+				HashMap<String, String> params = new HashMap<>();
 				params.put("id", playerID);
 				int level = Integer.parseInt((String) ((JSONObject) ((JSONObject) plugin.apiCall("getPlayer", params)).get("Player")).get("level"));
 				refreshLevel(player, level, nocache);
@@ -123,13 +125,13 @@ public class PlayerAPI {
 			int level = Integer.parseInt(to);
 			setLevel(player, level);
 			return;
-		} catch(Exception e) { }
+		} catch(Exception ignored) { }
 
 		try {
 			Role role = Role.getByName(to);
 			setLevel(player, role);
 			return;
-		} catch(Exception e) { }
+		} catch(Exception ignored) { }
 
 		throw new Exception("Invalid level or role specified!");
 	}
@@ -140,7 +142,7 @@ public class PlayerAPI {
 	
 	public void setLevel(Player player, int level) throws Exception {
 		String playerID = getPlayerID(player);
-		HashMap<String, String> params = new HashMap<String, String>();
+		HashMap<String, String> params = new HashMap<>();
 		params.put("id", playerID);
 		params.put("field", "\"level\"");
 		params.put("value", "\"" + level + "\"");
@@ -157,7 +159,7 @@ public class PlayerAPI {
 			}
 		}
 
-		HashMap<String, String> params = new HashMap<String, String>();
+		HashMap<String, String> params = new HashMap<>();
 		params.put("field", "\"name\"");
 		params.put("value", "\"" + name + "\"");
 		JSONObject ret = (JSONObject)plugin.apiCall("findPlayers", params);

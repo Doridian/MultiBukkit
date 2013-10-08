@@ -2,25 +2,16 @@ package de.doridian.multibukkit;
 
 import de.doridian.multibukkit.api.PlayerAPI;
 import de.doridian.multibukkit.commands.BaseCommand;
-import de.doridian.multibukkit.util.Utils;
+import de.doridian.multicraft.api.MulticraftAPI;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -33,11 +24,9 @@ public class MultiBukkit extends JavaPlugin {
 	public boolean enablePermissions;
 	public boolean enableGroups;
 	public boolean enableKick;
-	
-	private String apiURL;
-	private String apiUser;
-	private String apiKey;
-	public String apiServerID;
+
+	public MulticraftAPI api;
+	private String apiServerID;
 
 	private MultiBukkitListener listener;
 	public PlayerAPI playerAPI;
@@ -70,10 +59,6 @@ public class MultiBukkit extends JavaPlugin {
 			YamlConfiguration config = new YamlConfiguration();
 			config.load(mainFile);
 
-			apiURL = config.getString("api.url", "http://localhost/api.php");
-			apiUser = config.getString("api.user", "admin");
-			apiKey = config.getString("api.key", "CHANGEME");
-
 			apiServerID = config.getString("api.serverid", "INVALID");
 			if(apiServerID.equals("INVALID")) {
 				try {
@@ -84,8 +69,14 @@ public class MultiBukkit extends JavaPlugin {
 						apiServerID = matcher.group(2);
 						config.set("api.serverid", apiServerID);
 					}
-				} catch(Exception e) { }
+				} catch(Exception ignored) { }
 			}
+
+			api = new MulticraftAPI(
+					config.getString("api.url", "http://localhost/api.php"),
+					config.getString("api.user", "admin"),
+					config.getString("api.key", "CHANGEME")
+			);
 
 			enablePermissions = config.getBoolean("feature.permissions", true);
 			enableGroups = config.getBoolean("feature.groups", true);
@@ -108,16 +99,16 @@ public class MultiBukkit extends JavaPlugin {
 		BaseCommand.registerCommands();
 		log("Plugin enabled!");
 	}
-	
+
 	public void log(String msg) {
 		log(Level.INFO, msg);
 	}
-	
+
 	public void log(Level level, String msg) {
 		getLogger().log(level, msg);
 	}
 
-	protected HashMap<Player, PermissionAttachment> playerAttachments = new HashMap<Player, PermissionAttachment>();
+	protected HashMap<Player, PermissionAttachment> playerAttachments = new HashMap<>();
 	public PermissionAttachment findOrCreatePermissionAttachmentFor(Player player) {
 		return findOrCreatePermissionAttachmentFor(player, true);
 	}
@@ -133,7 +124,7 @@ public class MultiBukkit extends JavaPlugin {
 					playerAttachments.put(player, info.getAttachment());
 					return info.getAttachment();
 				}
-			} catch(Exception e) { }
+			} catch(Exception ignored) { }
 		}
 
 		if(!create) return null;
@@ -150,58 +141,8 @@ public class MultiBukkit extends JavaPlugin {
 		}
 		playerAttachments.remove(player);
 	}
-	
+
 	public Object apiCall(String method, Map<String, String> params) {
-		try {
-			URL url = new URL(apiURL);
-			HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-			conn.setRequestMethod("POST");
-			conn.setDoOutput(true);
-			OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
-
-			params.put("server_id", apiServerID);
-
-			params.put("_MulticraftAPIMethod", method);
-			params.put("_MulticraftAPIUser", apiUser);
-
-			MessageDigest md = MessageDigest.getInstance("MD5");
-			md.update(apiKey.getBytes());
-			for(String str : params.values()) {
-				md.update(str.getBytes());
-			}
-			params.put("_MulticraftAPIKey", Utils.getHexString(md.digest()));
-
-			boolean notfirst = false;
-			for(Map.Entry<String, String> param : params.entrySet()) {
-				if(notfirst) {
-					writer.write('&');
-				} else {
-					notfirst = true;
-				}
-				writer.write(URLEncoder.encode(param.getKey()));
-				writer.write('=');
-				writer.write(URLEncoder.encode(param.getValue()));
-			}
-			writer.close();
-
-			params.remove("_MulticraftAPIKey");
-			params.remove("_MulticraftAPIUser");
-			params.remove("_MulticraftAPIMethod");
-
-			JSONObject result = (JSONObject)(new JSONParser()).parse(new InputStreamReader(conn.getInputStream()));
-			if(!((Boolean)result.get("success"))) {
-				JSONArray errors = (JSONArray)result.get("errors");
-				StringBuilder exc = new StringBuilder();
-				for(Object o : errors) {
-					exc.append(o.toString());
-					exc.append(", ");
-				}
-				throw new Exception(exc.toString());
-			}
-			return result.get("data");
-		} catch(Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+		return api.call(method, apiServerID, params);
 	}
 }

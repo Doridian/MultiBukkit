@@ -42,16 +42,6 @@ public class Utils {
 		return ret.toString();
 	}
 
-	public static String getHexString(byte[] binaryForm) {
-		StringBuilder sb = new StringBuilder();
-		for(byte b : binaryForm) {
-			String str = Integer.toHexString(0xFF & b);
-			if(str.length() == 1) sb.append('0');
-			sb.append(str);
-		}
-		return sb.toString();
-	}
-	
 	public static <T> List<Class<? extends T>> getSubClasses(Class<T> baseClass) {
 		final List<Class<? extends T>> ret = new ArrayList<Class<? extends T>>();
 		final File file;
