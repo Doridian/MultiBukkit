@@ -13,18 +13,14 @@ public class CLI {
 	public static final int MIN_ARGS = 2;
 
 	public static void main(String[] args) {
-		for (int i = 0; i < args.length; i++) {
-			System.out.println(i+": "+args[i]);
-		}
-
 		if (args.length < MIN_ARGS) {
-			System.out.println("Error: Not enough arguments");
+			System.err.println("Error: Not enough arguments");
 			return;
 		}
 
 		final Matcher urlMatcher = URL_PATTERN.matcher(args[0]);
 		if (!urlMatcher.matches()) {
-			System.out.println("Error: Malformed endpoint URL");
+			System.err.println("Error: Malformed endpoint URL");
 			return;
 		}
 
@@ -40,16 +36,17 @@ public class CLI {
 		for (int i = MIN_ARGS; i < args.length; i++) {
 			final Matcher paramMatcher = PARAM_PATTERN.matcher(args[i]);
 			if (!paramMatcher.matches()) {
-				System.out.println("Error: Malformed parameter");
+				System.err.println("Error: Malformed parameter");
 				return;
 			}
 
 			final String key = paramMatcher.group(1);
-			final String value  = paramMatcher.group(2);
+			final String value = paramMatcher.group(2);
 
 			params.put(key, value);
 		}
 
-		api.call(method, params);
+		final Object ret = api.call(method, params);
+		System.out.println(ret);
 	}
 }
