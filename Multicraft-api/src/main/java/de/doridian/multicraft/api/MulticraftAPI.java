@@ -25,6 +25,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,27 +57,23 @@ public class MulticraftAPI {
 			conn.setDoOutput(true);
 			OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
 
-			params.put("_MulticraftAPIMethod", method);
-			params.put("_MulticraftAPIUser", user);
+            params.put("_MulticraftAPIMethod", method);
+            params.put("_MulticraftAPIUser", user);
 
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			md.update(key.getBytes());
-			for(String str : params.values()) {
-				md.update(str.getBytes());
-			}
-			params.put("_MulticraftAPIKey", Utils.getHexString(md.digest()));
-
-			boolean notfirst = false;
 			for(Map.Entry<String, String> param : params.entrySet()) {
-				if(notfirst) {
-					writer.write('&');
-				} else {
-					notfirst = true;
-				}
 				writer.write(URLEncoder.encode(param.getKey()));
 				writer.write('=');
 				writer.write(URLEncoder.encode(param.getValue()));
+                writer.write('&');
+
+                md.update(param.getValue().getBytes());
 			}
+
+            writer.write("_MulticraftAPIKey=");
+            writer.write(Utils.getHexString(md.digest()));
+
 			writer.close();
 
 			JSONObject result = (JSONObject)(new JSONParser()).parse(new InputStreamReader(conn.getInputStream()));
