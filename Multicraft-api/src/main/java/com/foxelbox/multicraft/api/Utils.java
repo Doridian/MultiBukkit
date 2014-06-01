@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Multicraft-api.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.doridian.multicraft.api;
+package com.foxelbox.multicraft.api;
 
 /**
  * Created with IntelliJ IDEA.

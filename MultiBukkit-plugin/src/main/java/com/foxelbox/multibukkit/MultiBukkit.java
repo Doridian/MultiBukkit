@@ -14,11 +14,11 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MultiBukkit-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.doridian.multibukkit;
+package com.foxelbox.multibukkit;
 
-import de.doridian.multibukkit.api.PlayerAPI;
-import de.doridian.multibukkit.commands.BaseCommand;
-import de.doridian.multicraft.api.MulticraftAPI;
+import com.foxelbox.multibukkit.api.PlayerAPI;
+import com.foxelbox.multibukkit.commands.BaseCommand;
+import com.foxelbox.multicraft.api.MulticraftAPI;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;

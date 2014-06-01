@@ -14,9 +14,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with MultiBukkit-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.doridian.multibukkit;
+package com.foxelbox.multibukkit;
 
-import de.doridian.multibukkit.api.JoinInitThread;
+import com.foxelbox.multibukkit.api.JoinInitThread;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;

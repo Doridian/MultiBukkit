@@ -22,7 +22,7 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
 		<artifactId>MultiBukkit</artifactId>
-		<groupId>de.doridian</groupId>
+		<groupId>com.foxelbox</groupId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -56,7 +56,7 @@
 						<index>true</index>
 						<manifest>
 							<addClasspath>true</addClasspath>
-							<mainClass>de.doridian.multicraft.cli.CLI</mainClass>
+							<mainClass>com.foxelbox.multicraft.cli.CLI</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -66,7 +66,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>de.doridian</groupId>
+			<groupId>com.foxelbox</groupId>
 			<artifactId>Multicraft-api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>

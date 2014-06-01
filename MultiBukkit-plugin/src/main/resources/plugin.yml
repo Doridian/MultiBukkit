@@ -1,5 +1,5 @@
 name: MultiBukkit
-main: de.doridian.multibukkit.MultiBukkit
+main: com.foxelbox.multibukkit.MultiBukkit
 author: Doridian
 version: 1.0.0
 commands:
