@@ -61,7 +61,6 @@
 	</build>
 	<modules>
 		<module>Multicraft-api</module>
-		<module>MultiBukkit-plugin</module>
 		<module>multicraft-cli</module>
 	</modules>
 </project>
