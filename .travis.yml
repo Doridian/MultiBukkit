@@ -4,11 +4,14 @@ notifications:
   email: false
 jdk:
 - oraclejdk8
+cache:
+  directories:
+  - $HOME/.m2
 before_install: wget https://gist.githubusercontent.com/Doridian/01cb63301fe4d022f533bd221e227970/raw/0771d2c50808b295abfbabe266be7368c3273974/settings.xml
   -O settings.bin
 script: mvn deploy -DaltDeploymentRepository=deployment-repo-id::default::https://maven.doridian.net/repository/maven-snapshots/
   --settings settings.bin
 env:
   global:
-  - secure: BX14d4b0qLt1Pn1FArL/dvZ/Tg8Quxe4VwefRfJSn4atrQYY2u/zfZ9Uq/vMGE5z3c9tv2cev9w96/uXpTBUQgyoQ2/2CI6XEkz2eQHGS+dhGnmyiwZjagSVTfyBQyx+93tfe5TQUWemQo41R+MLkpdA77hF9sB8w04/sNSE9qk=
-  - secure: QBYE40QNFx4FJkrEdW1/pr3omZ9O+XVa1fXoi031lLAzipMkT/2K/nVwMhKqr/ZE0MoUPZQfEGFEjMWjZKq4Cw4waNFcfnzovvTCI+ZEVasN9y8ngbBwvnFP+94bMEGuPB/n37zBLBGqGnRzuViNDnPa4UYvg4VBP0+GAlNyUg8=
+  - secure: UrL6vL/b5zP7E+ujP/WbX19hapSuwVCNpqVhCCkmZdTGLvSlSsZJbM4yHZbideluaXQXYmMtCvBJl+u+1eIO3SHW2awJlXsxm6V+Ic7uY2y6L3pXuax8kw9PicsTRer4IFW6psMGn48PyH2I22Uv1pkS6+NEK8QbHHtODscaWWE=
+  - secure: LcMCzdxasGwll7dUrjxnIOykaj08dmTI/E1J/8XtwllZKpHm91ey0q0mngMjEOk0Cfme/pDDFqBKKIDVJhtHowHPDCBvNCwUuBHZ/gZtYm5pEA5h9KHXgJkBTiR7w5YGc0MPccBM9E3uktGEgB2j+l82r6vHokoy1bC4npApMU8=
